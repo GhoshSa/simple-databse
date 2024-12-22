@@ -145,7 +145,7 @@ void free_table(Table* table) {
 
 void serialize_row(Row* source, void* destination) {
     memcpy(destination + ID_OFFSET, &(source->id), ID_SIZE);
-    memcpy(destination + USERNAME_OFFSET, &(source->id), USERNAME_SIZE);
+    memcpy(destination + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
     memcpy(destination + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
 }
 
@@ -243,6 +243,8 @@ int main() {
                 break;
         }
     }
+    free_table(table);
+    close_input_buffer(input_buffer);
     
     return 0;
 }
