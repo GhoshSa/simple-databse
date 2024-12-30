@@ -1,7 +1,11 @@
 describe 'database' do
+    before do
+        File.delete('mydb.db') if File.exist?('mydb.db')
+    end
+
     def run_script(commands)
         raw_output = nil
-        IO.popen("./REPL", "r+") do |pipe|
+        IO.popen("./REPL mydb.db", "r+") do |pipe|
             commands.each do |command|
                 pipe.puts command
             end
@@ -19,6 +23,7 @@ describe 'database' do
             "select",
             ".exit",
         ])
+
         expect(result).to match_array([
             "db > Executed.",
             "db > (1, user1, person1@example.com)",
@@ -85,6 +90,29 @@ describe 'database' do
             "db > ID must be positive.",
             "db > Executed.",
             "db > "
+        ])
+    end
+
+    it 'keeps the data after closing the connection' do
+        result1 = run_script([
+            "insert 1 user1 person1@example.com",
+            ".exit",
+        ])
+
+        expect(result1).to match_array([
+            "db > Executed.",
+            "db > ",
+        ])
+
+        result2 = run_script([
+            "select",
+            ".exit",
+        ])
+
+        expect(result2).to match_array([
+            "db > (1, user1, person1@example.com)",
+            "Executed.",
+            "db > ",
         ])
     end
 end
